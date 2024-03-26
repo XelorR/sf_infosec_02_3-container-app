@@ -1,0 +1,36 @@
+version: "3"
+services:
+  web:
+    build: .
+    ports:
+      - "8880:80"
+    volumes:
+      - ./src:/var/www/html
+    depends_on:
+      - db
+    networks:
+      - front-back
+  db:
+    image: mariadb:10.4
+    # ports:
+    #   - "8806:3306"
+    volumes:
+      - ./init.sql:/data/application/init.sql
+      - ./db:/var/lib/mysql
+    command: mysqld --init-file /data/application/init.sql
+    environment:
+      - MARIADB_RANDOM_ROOT_PASSWORD=yes
+    networks:
+      - front-back
+      - client-db
+    restart: always
+  client:
+    image: adminer
+    ports:
+      - "8888:8080"
+    networks:
+      - client-db
+
+networks:
+  front-back:
+  client-db:
